@@ -24,9 +24,6 @@ def main():
         if game_state == State.TITLE:
             game_state = title_screen(window)
 
-        if game_state == State.INFO:
-            game_state = info_page(window)
-
         if game_state == State.NEWGAME:
             level = 1
             game_state = play(window, level)

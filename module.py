@@ -12,7 +12,6 @@ BLACK = (0, 0, 0)
 
 
 def text_surface(digit, font_size=60, text_rgb=BLACK, bg_rgb=BLUE):
-    """ Returns surface with text written on """
     font = pygame.freetype.SysFont("Consolas", font_size, bold=True)
     surface, _ = font.render(text=digit, fgcolor=text_rgb, bgcolor=bg_rgb)
     return surface.convert_alpha()
@@ -56,10 +55,9 @@ class Button(Sprite):
 class State(Enum):
     QUIT = -1
     TITLE = 0
-    INFO = 1
-    NEWGAME = 2
-    NEXT_LEVEL = 3
-    END = 4
+    NEWGAME = 1
+    NEXT_LEVEL = 2
+    END = 3
 
 
 def game_loop(screen, buttons, image=None):
@@ -92,52 +90,37 @@ def game_loop(screen, buttons, image=None):
 def title_screen(screen):
     start = Button(
         center_position=(400, 300),
-        path_default=join("icons", "start1.png"),
-        path_highlighted=join("icons", "start2.png"),
+        path_default=join("images", "icons", "start1.png"),
+        path_highlighted=join("images", "icons", "start2.png"),
         action=State.NEWGAME
     )
 
-    info = Button(
-        center_position=(50, 50),
-        path_default=join("icons", "info1.png"),
-        path_highlighted=join("icons", "info2.png"),
-        action=State.INFO
-    )
-
-    buttons = RenderUpdates(start, info)
-
-    return game_loop(screen, buttons)
-
-
-def info_page(screen):
-    back = Button(
-        center_position=(50, 50),
-        path_default=join("icons", "back1.png"),
-        path_highlighted=join("icons", "back2.png"),
-        action=State.TITLE
-    )
-
-    buttons = RenderUpdates(back)
+    buttons = RenderUpdates(start)
 
     return game_loop(screen, buttons)
 
 
 def display(screen, level, pattern):
     screen.fill(BLUE)
-    screen.blit(text_surface("Level " + str(level), 30), (20, 20))
+    screen.blit(text_surface("Level " + str(level)), (280, 250))
     pygame.display.flip()
     pygame.time.delay(1000)
+    screen.fill(BLUE)
+    screen.blit(text_surface("Level " + str(level), 30), (20, 20))
+    pygame.display.flip()
+    pygame.time.delay(2000)
+
     for digit in pattern:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
-        obj = text_surface(str(digit))
+        obj = text_surface(str(digit), 90)
 
         screen.fill(BLUE)
-        screen.blit(text_surface("Level: " + str(level), 30), (20, 20))
-        screen.blit(obj, (randint(50, 700), randint(50, 500)))
+        screen.blit(text_surface("Level " + str(level), 30), (20, 20))
+        screen.blit(obj, (randint(90, 620), randint(90, 420)))
 
         pygame.display.flip()
         pygame.time.delay(1000)
@@ -156,18 +139,18 @@ def play(screen, level):
 def end_screen(screen):
     close = Button(
         center_position=(500, 400),
-        path_default=join("icons", "exit1.png"),
-        path_highlighted=join("icons", "exit2.png"),
+        path_default=join("images", "icons", "exit1.png"),
+        path_highlighted=join("images", "icons", "exit2.png"),
         action=State.QUIT
     )
 
     restart = Button(
         center_position=(300, 400),
-        path_default=join("icons", "restart1.png"),
-        path_highlighted=join("icons", "restart2.png"),
+        path_default=join("images", "icons", "restart1.png"),
+        path_highlighted=join("images", "icons", "restart2.png"),
         action=State.NEWGAME
     )
 
     buttons = RenderUpdates(restart, close)
 
-    return game_loop(screen, buttons, "game_over.png")
+    return game_loop(screen, buttons, join("images", "game_over.png"))
