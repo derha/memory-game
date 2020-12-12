@@ -57,14 +57,11 @@ class State(Enum):
     TITLE = 0
     NEWGAME = 1
     NEXT_LEVEL = 2
-    END = 3
+    INPUT = 3
+    END = 4
 
 
-def game_loop(screen, buttons, image=None):
-    img = None
-    if image is not None:
-        img = pygame.image.load(image)
-        img = pygame.transform.scale(img, (300, 300))
+def game_loop(screen, buttons, obj=None, obj_pos=None):
     while True:
         mouse_up = False
         for event in pygame.event.get():
@@ -75,8 +72,8 @@ def game_loop(screen, buttons, image=None):
                 mouse_up = True
 
         screen.fill(BLUE)
-        if image is not None:
-            screen.blit(img, (250, 25))
+        if obj is not None:
+            screen.blit(obj, obj_pos)
 
         for button in buttons:
             action = button.update(pygame.mouse.get_pos(), mouse_up)
@@ -125,15 +122,38 @@ def display(screen, level, pattern):
         pygame.display.flip()
         pygame.time.delay(1000)
 
+    return State.INPUT
 
-def play(screen, level):
-    pattern = []
-    for i in range(4 + level):
-        pattern.append(randint(0, 9))
 
-    display(screen, level, pattern)
-    # some more code for input
-    return State.END
+def input_page(screen, pattern, inp):
+    numbers = []
+    x = 75
+    for i in range(10):
+        x += 60
+        numbers.append(Button(
+            center_position=(x, 300),
+            path_default=join("images", "input", str(i) + "_1.png"),
+            path_highlighted=join("images", "input", str(i) + "_2.png"),
+            action=State.INPUT
+        ))
+
+    clear = Button(
+        center_position=(325, 400),
+        path_default=join("images", "input", "clear_1.png"),
+        path_highlighted=join("images", "input", "clear_2.png"),
+        action=State.INPUT
+    )
+
+    done = Button(
+        center_position=(475, 400),
+        path_default=join("images", "input", "done_1.png"),
+        path_highlighted=join("images", "input", "done_2.png"),
+        action=State.END
+    )
+
+    buttons = RenderUpdates(numbers + [clear, done])
+
+    return game_loop(screen, buttons)
 
 
 def end_screen(screen):
@@ -152,5 +172,7 @@ def end_screen(screen):
     )
 
     buttons = RenderUpdates(restart, close)
+    img = pygame.image.load(join("images", "game_over.png"))
+    img = pygame.transform.scale(img, (300, 300))
 
-    return game_loop(screen, buttons, join("images", "game_over.png"))
+    return game_loop(screen, buttons, img, (250, 25))

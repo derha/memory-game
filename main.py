@@ -17,6 +17,8 @@ def main():
     pygame.display.flip()
 
     level = 0
+    pattern = []
+    inp = []
 
     game_state = State.TITLE
 
@@ -26,11 +28,16 @@ def main():
 
         if game_state == State.NEWGAME:
             level = 1
-            game_state = play(window, level)
+            pattern = [randint(0, 9) for _ in range(4 + level)]
+            game_state = display(window, level, pattern)
 
         if game_state == State.NEXT_LEVEL:
             level += 1
-            game_state = play(window, level)
+            pattern = [randint(0, 9) for _ in range(4 + level)]
+            game_state = display(window, level, pattern)
+
+        if game_state == State.INPUT:
+            game_state = input_page(window, pattern, inp)
 
         if game_state == State.END:
             game_state = end_screen(window)
