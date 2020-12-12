@@ -2,10 +2,7 @@
 
 import pygame
 from module import *
-from os.path import join
-from sys import exit
 from random import randint
-from time import sleep
 
 
 def main():
@@ -29,15 +26,20 @@ def main():
         if game_state == State.NEWGAME:
             level = 1
             pattern = [randint(0, 9) for _ in range(4 + level)]
+            inp = []
             game_state = display(window, level, pattern)
 
         if game_state == State.NEXT_LEVEL:
             level += 1
             pattern = [randint(0, 9) for _ in range(4 + level)]
+            inp = []
             game_state = display(window, level, pattern)
 
         if game_state == State.INPUT:
-            game_state = input_page(window, pattern, inp)
+            game_state = input_page(window, inp)
+
+        if game_state == State.EVAL:
+            game_state = State.NEXT_LEVEL if pattern == inp else State.END
 
         if game_state == State.END:
             game_state = end_screen(window)

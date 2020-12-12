@@ -10,6 +10,8 @@ from sys import exit
 BLUE = (102, 178, 255)
 BLACK = (0, 0, 0)
 
+# general functions and classes
+
 
 def text_surface(digit, font_size=60, text_rgb=BLACK, bg_rgb=BLUE):
     font = pygame.freetype.SysFont("Consolas", font_size, bold=True)
@@ -58,7 +60,8 @@ class State(Enum):
     NEWGAME = 1
     NEXT_LEVEL = 2
     INPUT = 3
-    END = 4
+    EVAL = 4
+    END = 5
 
 
 def game_loop(screen, buttons, obj=None, obj_pos=None):
@@ -82,6 +85,9 @@ def game_loop(screen, buttons, obj=None, obj_pos=None):
         buttons.draw(screen)
 
         pygame.display.flip()
+
+
+# functions for actual states
 
 
 def title_screen(screen):
@@ -125,7 +131,7 @@ def display(screen, level, pattern):
     return State.INPUT
 
 
-def input_page(screen, pattern, inp):
+def input_page(screen, inp):
     numbers = []
     x = 75
     for i in range(10):
@@ -148,12 +154,45 @@ def input_page(screen, pattern, inp):
         center_position=(475, 400),
         path_default=join("images", "input", "done_1.png"),
         path_highlighted=join("images", "input", "done_2.png"),
-        action=State.END
+        action=State.EVAL
     )
 
-    buttons = RenderUpdates(numbers + [clear, done])
+    obj = text_surface("".join(list(map(str, inp))), 30) if inp else None
+    obj_rect = obj.get_rect(center=(400, 150)) if obj is not None else None
 
-    return game_loop(screen, buttons)
+    while True:
+        mouse_up = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_up = True
+
+        screen.fill(BLUE)
+        if obj is not None:
+            screen.blit(obj, obj_rect)
+
+        for i, number in enumerate(numbers):
+            action = number.update(pygame.mouse.get_pos(), mouse_up)
+            if action is not None:
+                inp.append(i)
+                return action
+
+        action = clear.update(pygame.mouse.get_pos(), mouse_up)
+        if action is not None:
+            if inp:
+                inp.pop()
+            return action
+
+        action = done.update(pygame.mouse.get_pos(), mouse_up)
+        if action is not None:
+            return action
+
+        buttons = RenderUpdates(numbers + [clear, done])
+        buttons.draw(screen)
+
+        pygame.display.flip()
 
 
 def end_screen(screen):
